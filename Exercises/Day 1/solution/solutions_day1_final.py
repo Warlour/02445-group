@@ -7,14 +7,15 @@ from sklearn.linear_model import LinearRegression
 import statsmodels.api as sm
 import scipy.stats as stats
 from scipy.stats import shapiro, ttest_ind, mannwhitneyu, f_oneway, kruskal
-
+import os
 
 
 
 # Exercise 1 _________________________________________________________________
 print("Exercise 1 - Brain _______________________________________________________________")
 # 1. Load data
-braindata = pd.read_csv("brainweight.txt", sep='\s+')
+
+braindata = pd.read_csv(os.chdir("../brain/brainweight.txt"), sep='\s+')
 
 # Print the first few rows and column names to ensure correct loading
 print(braindata.head())
