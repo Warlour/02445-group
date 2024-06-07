@@ -6,16 +6,15 @@ from scipy.stats import spearmanr
 from sklearn.linear_model import LinearRegression
 import statsmodels.api as sm
 import scipy.stats as stats
-from scipy.stats import shapiro, ttest_ind, mannwhitneyu, f_oneway, kruskal
-import os
+from scipy.stats import shapiro, ttest_ind, mannwhitneyu, f_oneway, kruskal, levene
+
 
 
 
 # Exercise 1 _________________________________________________________________
 print("Exercise 1 - Brain _______________________________________________________________")
 # 1. Load data
-
-braindata = pd.read_csv(os.chdir("../brain/brainweight.txt"), sep='\s+')
+braindata = pd.read_csv("brainweight.txt", sep='\s+')
 
 # Print the first few rows and column names to ensure correct loading
 print(braindata.head())
@@ -166,7 +165,7 @@ print(f'Mean difference (1972 - 1968): {mean_diff}')
 print("Exercise 3 - Log transformation _______________________________________________________________")
 # 1. Log of y
 x = np.linspace(1.5, 2.5, 100)
-logy = 3 * x + np.random.normal(scale=0.15, size=100)
+logy = 3 * x + np.random.normal(scale=0, size=100)
 y = np.exp(logy)
 
 # Plot x vs y
@@ -276,23 +275,32 @@ plt.show()
 # Exercise 4 _________________________________________________________________
 print("Exercise 4 - Calcium _______________________________________________________________")
 # Load data
-calc = pd.read_csv("calcium.txt")
+calc = pd.read_csv("calcium.txt", delim_whitespace=True)
+print("---------------------------------")
+print(calc['Decrease'][9:].shape)
+print("---------------------------------")
+
+# Verify columns
+print(calc.columns)
 
 # Two sample setting
 # 2. Q-Q plot for Calcium and Placebo
-plt.figure(figsize=(12, 6))
-plt.subplot(1, 2, 1)
-sm.qqplot(calc['Decrease'].iloc[:9], line='q', marker='o')
+# plt.figure(figsize=(12, 6))
+# plt.subplot(1, 2, 1)
+sm.qqplot(calc['Decrease'].iloc[:9], line='r')
 plt.title('Q-Q plot for Calcium')
-plt.subplot(1, 2, 2)
-sm.qqplot(calc['Decrease'].iloc[9:], line='q', marker='o')
+plt.show()
+sm.qqplot(calc['Decrease'].iloc[9:], line='r')
 plt.title('Q-Q plot for Placebo')
 plt.show()
 
 # 3. Variance test
-var_test_result = f_oneway(calc[calc['Treatment'] == 'Calcium']['Decrease'].dropna(),
-                            calc[calc['Treatment'] == 'Placebo']['Decrease'].dropna())
+calcium_decrease = calc[calc['Treatment'] == 'Calcium']['Decrease'].dropna()
+placebo_decrease = calc[calc['Treatment'] == 'Placebo']['Decrease'].dropna()
+var_test_result = f_oneway(calcium_decrease, placebo_decrease)
+statistics, p_value = levene(calcium_decrease, placebo_decrease)
 print("Variance test p-value:", var_test_result.pvalue)
+print("Levene test p-value:", p_value)
 
 # 4. Boxplot
 plt.figure(figsize=(8, 6))
@@ -303,13 +311,11 @@ plt.ylabel('Decrease')
 plt.show()
 
 # 5. Two-sample t-test assuming equal variances
-t_test_result = ttest_ind(calc[calc['Treatment'] == 'Calcium']['Decrease'].dropna(),
-                          calc[calc['Treatment'] == 'Placebo']['Decrease'].dropna(), equal_var=True)
+t_test_result = ttest_ind(calcium_decrease, placebo_decrease, equal_var=True)
 print("Two-sample t-test p-value (equal variances):", t_test_result.pvalue)
 
 # 6. Wilcoxon rank-sum test (Mann-Whitney U test)
-mannwhitneyu_test_result = mannwhitneyu(calc[calc['Treatment'] == 'Calcium']['Decrease'].dropna(),
-                                         calc[calc['Treatment'] == 'Placebo']['Decrease'].dropna())
+mannwhitneyu_test_result = mannwhitneyu(calcium_decrease, placebo_decrease)
 print("Wilcoxon rank-sum test p-value:", mannwhitneyu_test_result.pvalue)
 
 # Conidia
@@ -329,7 +335,8 @@ plt.show()
 conidia = pd.DataFrame({'temp': ['cold']*5 + ['medium']*5 + ['warm']*5,
                         'discharge': cold + medium + warm})
 anova_model = sm.formula.ols('discharge ~ temp', data=conidia).fit()
-print(anova_model.summary())
+anova_table = sm.stats.anova_lm(anova_model, typ=2)
+print(anova_table)
 
 # Kruskal-Wallis test
 kruskal_test_result = kruskal(cold, medium, warm)
