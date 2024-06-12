@@ -1,7 +1,8 @@
+
 ## Brain exercise
 
 ## load data
-braindata <- read.table("brainweight.txt", header = T)
+braindata <- read.table("Exercises/Day 1/brain/brainweight.txt", header = T)
 
 plot(braindata$body, braindata$brain)
 
@@ -37,7 +38,7 @@ plot(model) ## Residuals vs. fitted og qq-plot. Looks horrible. Good that we did
 
 
 #### Laborforce exercise
-labor <- read.table("labor.txt", header = T)
+labor <- read.table("Exercises/Day 1/laberforce/labor.txt", header = T)
 
 boxplot(cbind(labor$x1968, labor$x1972))
 boxplot(labor$x1968, labor$x1972)
@@ -102,7 +103,7 @@ lines(x, fit_model)
 
 
 ###### Calcium
-calc <- read.table("calcium.txt", header = T)
+calc <- read.table("Exercises/Day 1/calcium/calcium.txt", header = T)
 View(calc)
 
 ## Two sample setting 
@@ -113,7 +114,6 @@ qqline(calc$Decrease[1:9], main = "Calcium")
 
 qqnorm(calc$Decrease[10:21], main = "Placebo")
 qqline(calc$Decrease[10:21], main = "Placebo")
-
 
 # 3
 ?var.test
@@ -136,4 +136,8 @@ wilcox.test(calc$Decrease ~ calc$Treatment)
 
 
 ?colnames
+
+
+
+
 
